@@ -1,5 +1,5 @@
 {
-  "name": "[libraryName]",
+  "name": "keccak-256-auth",
   "version": "0.0.0",
   "description": "",
   "cdn": "dist/index.umd.js",
@@ -50,15 +50,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/[repositoryOwner]/[repositoryName].git"
+    "url": "git+https://github.com/Edgar-P-yan/node-keccak-256-auth.git"
   },
   "keywords": [],
   "author": {
-    "name": "[authorFullName]"
+    "name": "Edgar Pogosyan"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/[repositoryOwner]/[repositoryName]/issues"
+    "url": "https://github.com/Edgar-P-yan/node-keccak-256-auth/issues"
   },
-  "homepage": "https://github.com/[repositoryOwner]/[repositoryName]#readme"
+  "homepage": "https://github.com/Edgar-P-yan/node-keccak-256-auth#readme"
 }

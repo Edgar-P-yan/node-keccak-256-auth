@@ -1,6 +1,6 @@
-[libraryNameWithSpacesAndUpperCases]
+Keccak-256 Auth for Node.js and JavaScript
 
-# [libraryNameWithSpacesAndUpperCases]
+# Keccak-256 Auth for Node.js and JavaScript
 
 ## Table of contents
 

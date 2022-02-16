@@ -1,6 +1,6 @@
 /*!
- * [libraryName] v0.0.0
- * (c) [authorFullName]
+ * keccak-256-auth v0.0.0
+ * (c) Edgar Pogosyan
  * Released under the MIT License.
  */
 
