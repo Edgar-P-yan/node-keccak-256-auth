@@ -14,10 +14,6 @@
 
 - [constructor](Keccak256Strategy.md#constructor)
 
-### Properties
-
-- [options](Keccak256Strategy.md#options)
-
 ### Methods
 
 - [authenticate](Keccak256Strategy.md#authenticate)
@@ -33,31 +29,11 @@
 
 ### constructor
 
-• **new Keccak256Strategy**(`options`)
+• **new Keccak256Strategy**()
 
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `options` | `AuthenticateOptions` |
-
-#### Overrides
+#### Inherited from
 
 Strategy.constructor
-
-#### Defined in
-
-src/passport-strategy.ts:20
-
-## Properties
-
-### options
-
-• `Private` **options**: `AuthenticateOptions`
-
-#### Defined in
-
-src/passport-strategy.ts:18
 
 ## Methods
 
@@ -81,7 +57,7 @@ Strategy.authenticate
 
 #### Defined in
 
-src/passport-strategy.ts:25
+[src/passport-strategy.ts:14](https://github.com/Edgar-P-yan/node-keccak-256-auth/blob/6e253a6/src/passport-strategy.ts#L14)
 
 ___
 
@@ -186,7 +162,7 @@ ___
 
 #### Defined in
 
-src/passport-strategy.ts:63
+[src/passport-strategy.ts:44](https://github.com/Edgar-P-yan/node-keccak-256-auth/blob/6e253a6/src/passport-strategy.ts#L44)
 
 ___
 
@@ -206,7 +182,7 @@ ___
 
 #### Defined in
 
-src/passport-strategy.ts:101
+[src/passport-strategy.ts:82](https://github.com/Edgar-P-yan/node-keccak-256-auth/blob/6e253a6/src/passport-strategy.ts#L82)
 
 ___
 

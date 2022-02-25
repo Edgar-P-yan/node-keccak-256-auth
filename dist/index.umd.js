@@ -1,14 +1,14 @@
 /*!
- * keccak-256-auth v0.0.0
+ * keccak-256-auth v0.0.1
  * (c) Edgar Pogosyan
  * Released under the MIT License.
  */
 
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('ethereumjs-util'), require('@metamask/eth-sig-util'), require('url'), require('passport-strategy')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'ethereumjs-util', '@metamask/eth-sig-util', 'url', 'passport-strategy'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.keccak256Auth = {}, global.ethUtil, global.sigUtil, global.url, global.passportStrategy));
-})(this, (function (exports, ethUtil, sigUtil, url, passportStrategy) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('ethereumjs-util'), require('@metamask/eth-sig-util'), require('url'), require('axios'), require('debug'), require('passport-strategy')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'ethereumjs-util', '@metamask/eth-sig-util', 'url', 'axios', 'debug', 'passport-strategy'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.keccak256Auth = {}, global.ethUtil, global.sigUtil, global.url, global.axios, global._debug, global.passportStrategy));
+})(this, (function (exports, ethUtil, sigUtil, url, axios, _debug, passportStrategy) { 'use strict';
 
   function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
@@ -33,11 +33,38 @@
   var ethUtil__namespace = /*#__PURE__*/_interopNamespace(ethUtil);
   var sigUtil__namespace = /*#__PURE__*/_interopNamespace(sigUtil);
   var url__default = /*#__PURE__*/_interopDefaultLegacy(url);
-
-  var isAbsoluteURL = require('../helpers/isAbsoluteURL');
-  var combineURLs = require('../helpers/combineURLs');
+  var axios__default = /*#__PURE__*/_interopDefaultLegacy(axios);
+  var _debug__default = /*#__PURE__*/_interopDefaultLegacy(_debug);
 
   /**
+   * Gets full uri combining baseUrl and url.
+   *
+   * Axios does not export such method, so we implement it ourselves.
+   * @see https://github.com/axios/axios/pull/3737
+   */
+  function axiosGetFullUri(config) {
+      var requestedURL = axios__default["default"].getUri(config);
+      return buildFullPath(config.baseURL, requestedURL);
+  }
+  /**
+   * Internal combineURLs helper function from axios
+   * @see https://github.com/axios/axios/blob/d99d5faac29899eba68ce671e6b3cbc9832e9ad8/lib/helpers/combineURLs.js
+   *
+   * Creates a new URL by combining the specified URLs
+   *
+   * @param {string} baseURL The base URL
+   * @param {string} relativeURL The relative URL
+   * @returns {string} The combined URL
+   */
+  function combineURLs(baseURL, relativeURL) {
+      return relativeURL
+          ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
+          : baseURL;
+  }
+  /**
+   * Internal buildFullPath helper function from axios
+   * @see https://github.com/axios/axios/blob/d99d5faac29899eba68ce671e6b3cbc9832e9ad8/lib/core/buildFullPath.js
+   *
    * Creates a new URL by combining the baseURL with the requestedURL,
    * only when the requestedURL is not already an absolute URL.
    * If the requestURL is absolute, this function returns the requestedURL untouched.
@@ -46,102 +73,42 @@
    * @param {string} requestedURL Absolute or relative URL to combine
    * @returns {string} The combined full path
    */
-  module.exports = function buildFullPath(baseURL, requestedURL) {
-    if (baseURL && !isAbsoluteURL(requestedURL)) {
-      return combineURLs(baseURL, requestedURL);
-    }
-    return requestedURL;
-  };
-
-  var utils = require('./../utils');
-
-  function encode(val) {
-    return encodeURIComponent(val).
-      replace(/%3A/gi, ':').
-      replace(/%24/g, '$').
-      replace(/%2C/gi, ',').
-      replace(/%20/g, '+').
-      replace(/%5B/gi, '[').
-      replace(/%5D/gi, ']');
-  }
-
-  /**
-   * Build a URL by appending params to the end
-   *
-   * @param {string} url The base of the url (e.g., http://www.google.com)
-   * @param {object} [params] The params to be appended
-   * @returns {string} The formatted url
-   */
-  module.exports = function buildURL(url, params, paramsSerializer) {
-    /*eslint no-param-reassign:0*/
-    if (!params) {
-      return url;
-    }
-
-    var serializedParams;
-    if (paramsSerializer) {
-      serializedParams = paramsSerializer(params);
-    } else if (utils.isURLSearchParams(params)) {
-      serializedParams = params.toString();
-    } else {
-      var parts = [];
-
-      utils.forEach(params, function serialize(val, key) {
-        if (val === null || typeof val === 'undefined') {
-          return;
-        }
-
-        if (utils.isArray(val)) {
-          key = key + '[]';
-        } else {
-          val = [val];
-        }
-
-        utils.forEach(val, function parseValue(v) {
-          if (utils.isDate(v)) {
-            v = v.toISOString();
-          } else if (utils.isObject(v)) {
-            v = JSON.stringify(v);
-          }
-          parts.push(encode(key) + '=' + encode(v));
-        });
-      });
-
-      serializedParams = parts.join('&');
-    }
-
-    if (serializedParams) {
-      var hashmarkIndex = url.indexOf('#');
-      if (hashmarkIndex !== -1) {
-        url = url.slice(0, hashmarkIndex);
+  function buildFullPath(baseURL, requestedURL) {
+      if (baseURL && !isAbsoluteURL(requestedURL)) {
+          return combineURLs(baseURL, requestedURL);
       }
-
-      url += (url.indexOf('?') === -1 ? '?' : '&') + serializedParams;
-    }
-
-    return url;
-  };
-
+      return requestedURL;
+  }
   /**
-   * @see https://github.com/axios/axios/pull/3737
+   * Internal isAbsoluteURL helper function from axios
+   * @see https://github.com/axios/axios/blob/d99d5faac29899eba68ce671e6b3cbc9832e9ad8/lib/helpers/isAbsoluteURL.js
+   *
+   * Determines whether the specified URL is absolute
+   *
+   * @param {string} url The URL to test
+   * @returns {boolean} True if the specified URL is absolute, otherwise false
    */
-  function axiosGetFullUri(config) {
-      // config = mergeConfig(this.defaults, config);
-      var fullPath = undefined(config.baseURL, config.url);
-      return undefined(fullPath, config.params, config.paramsSerializer);
+  function isAbsoluteURL(url) {
+      // A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
+      // RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
+      // by any combination of letters, digits, plus, period, or hyphen.
+      return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
   }
 
+  var debug = _debug__default["default"]('keccak-256-auth:axios-interceptor');
   /**
    * Adds Authorization header with the Keccak-256 schema to the requests.
    * @see https://coldstack.atlassian.net/wiki/spaces/CS/pages/322109441/HTTP
    */
   function keccak256AxiosInterceptor(params) {
       var privateKey = Buffer.from(params.privateKey.replace(/^0x/, ''), 'hex');
-      var publicKey = ethUtil__namespace.privateToAddress(privateKey).toString('hex');
+      var publicKey = ethUtil__namespace.bufferToHex(ethUtil__namespace.privateToAddress(privateKey));
       var defaultSignedHeaders = params.signedHeaders
           ? params.signedHeaders.map(function (header) { return header.toLowerCase(); })
           : ['date', 'host'];
-      return function (config) {
+      params.debug &&
+          debug("Initialized: publicKey=".concat(publicKey, ", signedHeaders=").concat(defaultSignedHeaders.join(';')));
+      return function _keccak256AxiosInterceptor(config) {
           if (!config.method) {
               throw new TypeError("config.method is ".concat(config.method));
           }
@@ -216,6 +183,13 @@
                   signedHeaders.join(';') +
                   ',signature=' +
                   signature;
+          if (params.debug) {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              config.headers['x-keccak-256-string-to-sign'] = stringToSign;
+          }
+          debug("String to sign: ".concat(stringToSign));
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          debug("Authorization header: ".concat(config.headers['authorization']));
           return config;
       };
   }
@@ -259,19 +233,12 @@
 
   var Keccak256Strategy = /** @class */ (function (_super) {
       __extends(Keccak256Strategy, _super);
-      function Keccak256Strategy(options) {
-          var _this = _super.call(this) || this;
-          _this.options = options;
-          return _this;
+      function Keccak256Strategy() {
+          return _super !== null && _super.apply(this, arguments) || this;
       }
       Keccak256Strategy.prototype.authenticate = function (req) {
           try {
               var parsed = this.parseAuthorizationHeader(req);
-              if (!this.options.allowFrom
-                  .map(function (key) { return key.toLowerCase(); })
-                  .includes(parsed.publicKey.toLocaleLowerCase())) {
-                  throw new Error('Unauthorized: unknown publicKey');
-              }
               var stringToSign = this.getStringToSign(req, parsed);
               var msgBufferHex = ethUtil__namespace.bufferToHex(Buffer.from(stringToSign, 'utf8'));
               var address = sigUtil__namespace.recoverPersonalSignature({

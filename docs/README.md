@@ -31,6 +31,7 @@ Adds Authorization header with the Keccak-256 schema to the requests.
 | Name | Type |
 | :------ | :------ |
 | `params` | `Object` |
+| `params.debug?` | `boolean` |
 | `params.privateKey` | `string` |
 | `params.signedHeaders?` | `string`[] |
 
@@ -40,4 +41,4 @@ Adds Authorization header with the Keccak-256 schema to the requests.
 
 #### Defined in
 
-src/axios-interceptor.ts:13
+[src/axios-interceptor.ts:15](https://github.com/Edgar-P-yan/node-keccak-256-auth/blob/6e253a6/src/axios-interceptor.ts#L15)

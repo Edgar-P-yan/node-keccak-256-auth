@@ -8,7 +8,7 @@ import axios from 'axios';
  * @see https://github.com/axios/axios/pull/3737
  */
 export function axiosGetFullUri(config: AxiosRequestConfig): string {
-  const requestedURL = axios.getUri();
+  const requestedURL = axios.getUri(config);
 
   return buildFullPath(config.baseURL, requestedURL);
 }

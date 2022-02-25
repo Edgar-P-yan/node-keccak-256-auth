@@ -7,6 +7,7 @@ declare type AxiosInterceptor = (config: AxiosRequestConfig) => AxiosRequestConf
 export declare function keccak256AxiosInterceptor(params: {
     privateKey: string;
     signedHeaders?: string[];
+    debug?: boolean;
 }): AxiosInterceptor;
 export {};
 //# sourceMappingURL=axios-interceptor.d.ts.map
