@@ -1,16 +1,18 @@
-import { isNumberParseable } from './';
+import { keccak256AxiosInterceptor } from './axios-interceptor';
 
-describe('unit | isNumberParseable', () => {
-  it('returns `true` for values parseable number', () => {
-    expect(isNumberParseable('-7.5')).toBe(true);
-    expect(isNumberParseable(false)).toBe(true);
-    expect(isNumberParseable(1892)).toBe(true);
-  });
+describe('unit | keccak256AxiosInterceptor', () => {
+  it('sets Authorization header', () => {
+    const interceptor = keccak256AxiosInterceptor({
+      privateKey: Buffer.from('a'.repeat(32), 'utf-8').toString('hex'),
+    });
 
-  it('returns `false` for values non parseable to number', () => {
-    expect(isNumberParseable('A8sa')).toBe(false);
-    expect(isNumberParseable({})).toBe(false);
-    expect(isNumberParseable(NaN)).toBe(false);
-    expect(isNumberParseable('18L')).toBe(false);
+    const newConfigs = interceptor({
+      method: 'GET',
+      baseURL: 'https://example.com',
+      url: '/url',
+    });
+
+    expect(newConfigs.headers?.['authorization']).toBeDefined();
+    expect(newConfigs.headers?.['authorization']).toMatch(/^Keccak-256 .+/);
   });
 });

@@ -4,57 +4,40 @@ Keccak-256 Auth for Node.js and JavaScript
 
 ## Table of contents
 
-### Type aliases
+### Classes
 
-- [NumberParseable](README.md#numberparseable)
+- [Keccak256Strategy](classes/Keccak256Strategy.md)
+
+### Interfaces
+
+- [Keccak256User](interfaces/Keccak256User.md)
 
 ### Functions
 
-- [isNumberParseable](README.md#isnumberparseable)
-
-## Type aliases
-
-### NumberParseable
-
-Ƭ **NumberParseable**: `number` \| `string` \| `boolean` & { `isNumberParseble`: unique `symbol`  }
-
-A Branded Type for values parseable to number.
-
-#### Defined in
-
-[index.ts:4](https://github.com/VitorLuizC/typescript-library-boilerplate/blob/81bf970/src/index.ts#L4)
+- [keccak256AxiosInterceptor](README.md#keccak256axiosinterceptor)
 
 ## Functions
 
-### isNumberParseable
+### keccak256AxiosInterceptor
 
-▸ `Const` **isNumberParseable**(`value`): value is NumberParseable
+▸ **keccak256AxiosInterceptor**(`params`): `AxiosInterceptor`
 
-Check if value is parseable to number.
+Adds Authorization header with the Keccak-256 schema to the requests.
 
-**`example`**
-```js
-isNumberParseable('AAAA');
-//=> false
-
-isNumberParseable('100');
-//=> true
-
-if (!isNumberParseable(value))
-  throw new Error('Value can\'t be parseable to `Number`.')
-return Number(value);
-```
+**`see`** https://coldstack.atlassian.net/wiki/spaces/CS/pages/322109441/HTTP
 
 #### Parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `value` | `unknown` | An `unknown` value to be checked. |
+| Name | Type |
+| :------ | :------ |
+| `params` | `Object` |
+| `params.privateKey` | `string` |
+| `params.signedHeaders?` | `string`[] |
 
 #### Returns
 
-value is NumberParseable
+`AxiosInterceptor`
 
 #### Defined in
 
-[index.ts:24](https://github.com/VitorLuizC/typescript-library-boilerplate/blob/81bf970/src/index.ts#L24)
+src/axios-interceptor.ts:13
