@@ -96,6 +96,25 @@ describe('unit | Keccak256Strategy', () => {
     });
   });
 
+  it('rejects if the signature is wrong', () => {
+    const strategy = mockPassportStrategy(new Keccak256Strategy());
+
+    strategy.authenticate({
+      method: 'GET',
+      originalUrl: '/url',
+      headers: {
+        // signature=0x part is not the matching signature
+        authorization:
+          'Keccak-256 public_key=0x000001921169232344c6b46ff7612bd16a921bff,signed_headers=date;host,signature=0x031fd8e6322362de861fdfe0ed68c403271b193c127f184b3f95becf200146bf01b0111fba25a9f0cdd065af05427868142ebc515e032fb4f275d18c5b19ee441c',
+        date: 'Thu, 01 Jan 1970 00:00:00 GMT',
+        host: 'example.com',
+      },
+    } as any);
+
+    expect(strategy._error).toBeDefined();
+    expect(strategy._error.message).toEqual('Unauthorized: wrong signature');
+  });
+
   it('successfully verifies the signature', () => {
     const strategy = mockPassportStrategy(new Keccak256Strategy());
 
